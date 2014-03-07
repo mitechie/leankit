@@ -14,7 +14,7 @@ LeanKit
 
 LeanKit API in Python
 
-* Free software: BSD license
+* Free software: GPL v3
 * Documentation: http://leankit.rtfd.org.
 
 Features
