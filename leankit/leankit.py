@@ -11,7 +11,7 @@ import requests
 import time
 
 
-ANNOTATION_REGEX = re.compile('^\s*{.*}\s*$', re.MULTILINE|re.DOTALL)
+ANNOTATION_REGEX = re.compile('^\s*{.*}\s*$', re.MULTILINE | re.DOTALL)
 Auth = namedtuple('Auth', ['account', 'username', 'password'])
 
 
@@ -104,7 +104,7 @@ class LeankitConnector(object):
 
         resp = request.response
         if (not sent or
-            resp.status_code not in LeankitResponseCodes.SUCCESS_CODES):
+                resp.status_code not in LeankitResponseCodes.SUCCESS_CODES):
             print "Error from kanban"
             pprint(resp)
             raise IOError('kanban error %d' % (resp.status_code))
@@ -112,7 +112,7 @@ class LeankitConnector(object):
         response = Record(json.loads(resp.content))
 
         if (handle_errors and
-            response.ReplyCode not in LeankitResponseCodes.SUCCESS_CODES):
+                response.ReplyCode not in LeankitResponseCodes.SUCCESS_CODES):
             raise IOError('kanban error %d: %s' % (
                 response.ReplyCode, response.ReplyText))
         return response
@@ -176,7 +176,7 @@ class Converter(object):
     def __setattr__(self, attr, value):
         if ((not hasattr(self, attr) or
              getattr(self, attr, None) != value) and
-            attr in self._watched_attrs):
+                attr in self._watched_attrs):
             self.direct_setattr('is_dirty', True)
             self.dirty_attrs.add(attr)
         self.direct_setattr(attr, value)
@@ -185,8 +185,10 @@ class Converter(object):
 class LeankitUser(Converter):
     attributes = ['UserName', 'FullName', 'EmailAddress', 'Id']
 
+
 class LeankitCardType(Converter):
     attributes = ['Name', 'IsDefault', 'ColorHex', 'IconPath', 'Id']
+
 
 class LeankitCard(Converter):
     attributes = ['Id', 'Title', 'Priority', 'Description', 'Tags',
@@ -225,9 +227,9 @@ class LeankitCard(Converter):
             # no-op.
             return
         data = self._raw_data
-        data["UserWipOverrideComment"] =  None;
+        data["UserWipOverrideComment"] = None
         if ("AssignedUsers" in data and
-            "assigned_user_id" not in self.dirty_attrs):
+                "assigned_user_id" not in self.dirty_attrs):
             if 'AssignedUserId' in data.keys():
                 del data['AssignedUserId']
             if 'AssignedUserName' in data.keys():
@@ -315,7 +317,6 @@ class LeankitCard(Converter):
         self.due_date = src.due_date
         self.external_card_id = src.external_card_id
         self.assigned_user_id = src.assigned_user_id
-
 
     @property
     def parsed_description(self):
@@ -448,6 +449,7 @@ class LeankitLane(Converter):
         self.cards.append(card)
         return card
 
+
 class LeankitBoard(Converter):
 
     attributes = ['Id', 'Title', 'CreationDate', 'IsArchived']
@@ -493,7 +495,7 @@ class LeankitBoard(Converter):
         archive_lanes = [lane_dict['Lane'] for lane_dict in self._archive]
         archive_lanes.extend(
             [lane_dict['Lane'] for
-            lane_dict in self._archive[0]['ChildLanes']])
+                lane_dict in self._archive[0]['ChildLanes']])
         self._backlog = self.connector.get(
             "/Board/" + str(self.id) + "/Backlog").ReplyData[0]
         self._populateLanes(
@@ -561,12 +563,13 @@ class LeankitBoard(Converter):
 
     def getLane(self, lane_id):
         flat_lanes = {}
+
         def flatten_lane(lane):
             flat_lanes[lane.id] = lane
             for child in lane.child_lanes:
                 flatten_lane(child)
         map(flatten_lane, self.root_lane.child_lanes)
-        return flat_lanes[lane_id];
+        return flat_lanes[lane_id]
 
     def getLaneByTitle(self, title):
         if len(self.root_lane.child_lanes) > 0:
@@ -578,7 +581,7 @@ class LeankitBoard(Converter):
         else:
             for child in lane.child_lanes:
                 result = self._getLaneByTitle(child, title)
-                if result != None:
+                if result is None:
                     return result
             return None
 
@@ -587,7 +590,7 @@ class LeankitBoard(Converter):
             return self._getLaneByPath(self.root_lane, path, ignorecase)
 
     def _getLaneByPath(self, lane, path, ignorecase):
-        if ignorecase == True:
+        if ignorecase:
             if lane.path.lower() == path.lower():
                 return lane
         else:
@@ -596,10 +599,9 @@ class LeankitBoard(Converter):
 
         for child in lane.child_lanes:
             result = self._getLaneByPath(child, path, ignorecase)
-            if result != None:
+            if result is None:
                 return result
         return None
-
 
     def _printLanes(self, lane, indent, include_cards=False):
         next_lane = lane.getNextLanes()
