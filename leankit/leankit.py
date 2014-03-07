@@ -90,20 +90,16 @@ class LeankitConnector(object):
             time.sleep(delay)
         self.last_request_time = time.time()
         try:
-            request = self.http.request(
+            resp = self.http.request(
                 method=action,
                 url=self.base_api_url + url,
                 data=data,
                 auth=self.http.auth,
-                headers=headers,
-                config={},
-                return_response=False)
-            sent = request.send()
+                headers=headers)
         except Exception as e:
             raise IOError("Unable to make HTTP request: %s" % e.message)
 
-        resp = request.response
-        if (not sent or
+        if (not resp or
                 resp.status_code not in LeankitResponseCodes.SUCCESS_CODES):
             print "Error from kanban"
             pprint(resp)
@@ -456,6 +452,9 @@ class LeankitBoard(Converter):
 
     base_uri = '/Boards/'
 
+    def __str__(self):
+        return "{0} {1}".format(self.id, self.title)
+
     def __init__(self, board_dict, connector):
         super(LeankitBoard, self).__init__(board_dict)
 
@@ -599,7 +598,7 @@ class LeankitBoard(Converter):
 
         for child in lane.child_lanes:
             result = self._getLaneByPath(child, path, ignorecase)
-            if result is None:
+            if result is not None:
                 return result
         return None
 
