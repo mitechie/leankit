@@ -37,8 +37,10 @@ setup(
     zip_safe=False,
     keywords='leankit',
     entry_points={
-        'console_scripts':
-        ['leankit2poker=leankit.scripts.leankit2poker:main']
+        'console_scripts': [
+            'leankit2poker=leankit.scripts.leankit2poker:main',
+            'leankit=leankit.scripts.query:main'
+        ]
     },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

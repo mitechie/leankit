@@ -1,4 +1,3 @@
-import argparse
 import sys
 
 from leankit.leankit import LeankitKanban
@@ -11,9 +10,7 @@ from leankit.scripts.common import (
 def parse_args():
 
     desc = "Interact with your Leankit Kanban boards."
-    parser = argparse.ArgumentParser(description=desc)
-    parser = base_args
-
+    parser = base_args(desc)
     args = parser.parse_args()
     return args
 
